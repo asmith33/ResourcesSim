@@ -1,6 +1,6 @@
 class Resource {
 
-  int type; // 0:resource_a, 1:resource_b, 2:resource_c, 3:resource_d
+  int type; // 0:resource_a, RED, 1:resource_b, GREEN, 2:resource_c, BLUE, 3:resource_d
   int radius;
   int x, y;
   int vx, vy;
@@ -24,11 +24,23 @@ class Resource {
     for (int i=x-radius; i<= x+radius; i=i+map.binSize) {
       for (int j=y-radius; j<= y+radius; j=j+map.binSize) {
         if (isWithin(i+map.binSize/2,j+map.binSize/2)) {
-          Bin b = map.grid.get_bin(i,j);
-          if (type==0) {
-            Float e = b.energies.get(0);
-            e = e + (max_per_bin - e)*growth_rate;
-            b.energies.set(0,e);
+          // Was having a problem where I was trying to index bins.. I thought it was because I was calling -x's or -y's.. but maybe not.. the plot thickens.
+          // By god i've solved it. I was checking x/y.. but im using i,j in the function call. doh!
+          if (i >= 0 && j >= 0 && i < width && j < height) {  
+            Bin b = map.grid.get_bin(i,j, 6);
+            if (type==0) {
+              Float e = b.energies.get(0);
+              e = e + (max_per_bin - e)*growth_rate;
+              b.energies.set(0,e);
+            } else if (type==1) {
+              Float e = b.energies.get(1);
+              e = e + (max_per_bin - e)*growth_rate;
+              b.energies.set(1,e);
+            } else if (type==2) {
+              Float e = b.energies.get(2);
+              e = e + (max_per_bin - e)*growth_rate;
+              b.energies.set(2,e);
+            }
           }
         }
       }
@@ -39,14 +51,32 @@ class Resource {
     switch(type) {
       case 0:
         if (x+vx+radius > width || x+vx-radius < 0) {
-        vx=-vx;
-      } else if (y+vy+radius > height || y+vy-radius < 0) {
-        vy=-vy;
-      } 
-      
-      x = x + vx;
-      y = y + vy;
-      break;
+          vx=-vx;
+        } 
+        if (y+vy+radius > height || y+vy-radius < 0) {
+          vy=-vy;
+        }
+        
+        x = x + vx;
+        y = y + vy;
+        
+        
+        break;
+      case 1:
+        if (x+vx+radius > width || x+vx-radius < 0) {
+          vx=-vx;
+        } 
+        if (y+vy+radius > height || y+vy-radius < 0) {
+          vy=-vy;
+        }
+        
+        x = x + vx;
+        y = y + vy;
+        
+        
+        break;
+      case 2:
+        break;
     }
   }
   
@@ -66,16 +96,18 @@ class Resource {
     strokeWeight(1);
     stroke(0);
     if (type == 0) {
-      fill(57, 240, 65, 30);
-    } else if (type == 1) {
       fill(200, 10, 25, 30);
+    } else if (type == 1) {
+      fill(57, 240, 65, 30);
     } else if (type == 2) {
       fill(0, 55, 214, 30);
     } else if (type == 3) {
       fill(230, 100);
     }
     
-    ellipse(x, y, 2*radius, 2*radius);
+    if (hide_grid && !hide_resources) {
+      ellipse(x, y, 2*radius, 2*radius);
+    }
   }
 
 }

@@ -5,11 +5,17 @@ class Agent {
   int vx, vy;
   int wind_max;
   int wind;
-  float spawn_rate = .001;
-  float mutation_rate = .5;
-  float mutation_increment = 5;
+  // spaw rate of .08 is nice, maybe a tad slow
+  // spawn rate of .09 snowballs with no end in sight
+  float spawn_rate = .0825;
+  float mutation_rate = .3;
+  float mutation_increment = .025;
+  int rest_count_max;
+  int rest_count;
+  int since_last_meal;
+ 
 
-  Agent(int x_, int y_, float ha, float hb, float hc, float hd, int wm) {
+  Agent(int x_, int y_, float ha, float hb, float hc, float hd, int wm, int rest_count_max_, int rest_count_) {
     x = x_;
     y = y_;
     vx = 0;
@@ -21,32 +27,52 @@ class Agent {
     wind_max = wm;
     wind = wind_max;
     energy = 500;
+    rest_count_max = rest_count_max_;
+    rest_count = rest_count_;
+    since_last_meal = 0;
   }
 
-  void harvest(int harv_type) {
+  float harvest(int harv_type) {
+    if (x < 0 || y < 0 || x > width || y > height) {
+      return 0.0;
+    }
+      
     float delta_e=0;
 
     if (harv_type == 0) {
-      delta_e = harvest_rate_a*map.grid.get_bin(x, y).energies.get(0);
+      // Grab the bin, energy a = 0
+      Float available_quantity = map.grid.get_bin(x,y, 0).energies.get(0);
+      // The change in this agents energy is equal to their harvest rate multiplied by 
+      // the ratio of the remaining energy.
+      delta_e = harvest_rate_a*(available_quantity*available_quantity/ra.max_per_bin);
+      // Updating this agents energy
       energy = energy + delta_e;
-      map.grid.get_bin(x,y).energies.set(0, map.grid.get_bin(x,y).energies.get(0)-delta_e);
-    } /*else if (harv_type == 1) {
-      delta_e = harvest_rate_b*map.grid.get_bin(x, y).energies.get(1);
+      // Setting the grid to reflect the reduction in energy
+      map.grid.get_bin(x,y, 1).energies.set(0, available_quantity-delta_e);
+    } else if (harv_type == 1) {
+      Float available_quantity = map.grid.get_bin(x,y, 2).energies.get(1);
+      delta_e = harvest_rate_b*(available_quantity*available_quantity/rb.max_per_bin);
       energy = energy + delta_e;
-      b.energies.set(1, b.energies.get(1)-delta_e);
+      map.grid.get_bin(x,y, 3).energies.set(1, available_quantity-delta_e);
     } else if (harv_type == 2) {
-      delta_e = harvest_rate_c*map.grid.get_bin(x, y).energies.get(2);
+      Float available_quantity = map.grid.get_bin(x,y, 4).energies.get(2);
+      delta_e = harvest_rate_c*(available_quantity*available_quantity/rc.max_per_bin);
       energy = energy + delta_e;
-      b.energies.set(2, b.energies.get(2)-delta_e);
-    } else if (harv_type == 3) {
-      delta_e = harvest_rate_d*map.grid.get_bin(x, y).energies.get(3);
+      map.grid.get_bin(x,y, 5).energies.set(2, available_quantity-delta_e);
+    } /*else if (harv_type == 3) {
+      Float available_quantity = map.grid.get_bin(x,y).energies.get(3);
+      delta_e = harvest_rate_d*(available_quantity*available_quantity/rd.max_per_bin);
       energy = energy + delta_e;
-      b.energies.set(3, b.energies.get(3)-delta_e);
+      map.grid.get_bin(x,y).energies.set(3, available_quantity-delta_e);
     }*/
+    return delta_e;
   }
 
   void move() {
-    if (millis()%4==0) {
+    rest_count++;
+    if (rest_count >= rest_count_max) {
+      rest_count = 0;
+    
       if (wind == 0) { 
         // The object has reached the end of it's gas tank and will either rest, or move
         // in a new direction. 
@@ -57,17 +83,38 @@ class Agent {
       } else {
         wind--;
       }
-
+  
       x = x + vx;
       y = y + vy;
+      energy -= since_last_meal-1;
+      
+      // chance to reproduce within life window
+      if (energy > 150 && energy < 400) {
+        float rnd = random(1);
+        if (rnd < spawn_rate) {
+          agents.add(mutate_reproduce());
+       }
     }
-    energy--;
+    } else {
+      return;
+    }
+    
+    
+    
+    // time to eat.
+    float y = harvest(0);
+    y += harvest(1);
+    y += harvest(2);
+    if (y<2) {
+      since_last_meal++;
+    }
+    
   }
 
   void display() {
     noStroke();
-    fill(map(harvest_rate_b, 0, .3, 105, 245), map(harvest_rate_a, 0, .3, 105, 245), map(harvest_rate_c, 0, .3, 105, 245));
-    ellipse(x, y, 8, 8);
+    fill(map(harvest_rate_a, 0, .25, 30, 220), map(harvest_rate_b, 0, .225, 30, 220), map(harvest_rate_c, 0, .225, 30, 220));
+    ellipse(x, y, 5, 5);
   }
 
   Agent mutate_reproduce() {
@@ -78,6 +125,7 @@ class Agent {
     float pass_hc = harvest_rate_c;
     float pass_hd = harvest_rate_d;
     int pass_mw = wind_max;
+    int pass_rcm = rest_count_max;
 
     if (rnd < mutation_rate) {
       /*
@@ -157,14 +205,21 @@ class Agent {
           pass_mw = wind_max+1;
         }
       }
+      
+      if (coin_flip()) {
+        pass_rcm = rest_count_max + 1;
+      } else if (rest_count_max > 1) {
+        pass_rcm = rest_count_max - 1;
+      }
+      
     }
-    if (pass_ha < 1 || pass_hb < 1 || pass_hc < 1 || pass_hd < 1) {
+    if (pass_ha < 0 || pass_hb < 0 || pass_hc < 0 || pass_hd < 0) {
       pass_ha = harvest_rate_a;
       pass_hb = harvest_rate_b;
       pass_hc = harvest_rate_c;
       pass_hd = harvest_rate_d;
     }
-    Agent a = new Agent(x+rand_three()-2, y+rand_three()-2, pass_ha, pass_hb, pass_hc, pass_hd, pass_mw);
+    Agent a = new Agent(x+rand_three()-2, y+rand_three()-2, pass_ha, pass_hb, pass_hc, pass_hd, pass_mw, pass_rcm, pass_rcm);
     return a;
   }
 }
