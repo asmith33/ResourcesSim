@@ -46,6 +46,7 @@ class Grid {
    }
    
    void display() {
+     /* This worked well, just wanted to try making boxes that represent the values by color
      stroke(100);
      strokeWeight(1);
      for (int i=0; i<=w; i++) {
@@ -53,6 +54,13 @@ class Grid {
      }
      for (int i=0; i<=h; i++) {
        line(0, i*binSize, width, i*binSize);
+     }
+     */
+     for (int i=0; i<w*h; i++) {
+       Bin b = bins.get(i);
+       noStroke();
+       fill(map(b.energies.get(0), 0, 50, 45, 245), map(b.energies.get(1), 0, 50, 45, 245), map(b.energies.get(2), 0, 50, 45, 245));
+       rect( (i*binSize)%(w*binSize), i/binSize, binSize, binSize);
      }
    }
 }

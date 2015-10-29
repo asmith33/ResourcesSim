@@ -5,9 +5,10 @@ class Resource {
   int x, y;
   int vx, vy;
   float growth_rate;
+  float decay_rate;
   int max_per_bin;
   
-  Resource(int type_, int radius_, int x_, int y_, int vx_, int vy_, float growth_rate_, int max_per_bin_) {
+  Resource(int type_, int radius_, int x_, int y_, int vx_, int vy_, float growth_rate_, float decay_rate_, int max_per_bin_) {
     type = type_;
     radius = radius_;
     x = x_;
@@ -15,6 +16,7 @@ class Resource {
     vx = vx_;
     vy = vy_;
     growth_rate = growth_rate_;
+    decay_rate = decay_rate_;
     max_per_bin = max_per_bin_;
   }
 
@@ -32,7 +34,22 @@ class Resource {
       }
     }
   }
-
+  
+  void move() {
+    switch(type) {
+      case 0:
+        if (x+vx+radius > width || x+vx-radius < 0) {
+        vx=-vx;
+      } else if (y+vy+radius > height || y+vy-radius < 0) {
+        vy=-vy;
+      } 
+      
+      x = x + vx;
+      y = y + vy;
+      break;
+    }
+  }
+  
   boolean isWithin(int their_x, int their_y) {
     /*
      * This function checks to see if an x/y position is within the radius of this object
