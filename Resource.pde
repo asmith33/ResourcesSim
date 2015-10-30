@@ -90,6 +90,17 @@ class Resource {
         
         break;
       case 2:
+        if (x+vx+radius > width || x+vx-radius < 0) {
+          vx=-vx;
+          vy=-vy;
+        } 
+        if (y+vy+radius > height || y+vy-radius < 0) {
+          vy=-vy;
+          vx=-vx;
+        }
+        
+        x = x + vx;
+        y = y + vy;
         break;
     }
   }

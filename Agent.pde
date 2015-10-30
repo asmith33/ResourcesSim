@@ -35,7 +35,7 @@ class Agent {
   }
 
   float harvest(int harv_type) {
-    if (x < 0 || y < 0 || x > width || y > height) {
+    if (x < 0 || y < 0 || x >= width || y >= height) {
       return 0.0;
     }
       
@@ -121,7 +121,7 @@ class Agent {
 
   void display() {
     noStroke();
-    fill(map(harvest_rate_a, 0, .25, 30, 220), map(harvest_rate_b, 0, .225, 30, 220), map(harvest_rate_c, 0, .225, 30, 220));
+    fill(map(harvest_rate_a, 0, .225, 0, 255), map(harvest_rate_b, 0, .225, 0, 255), map(harvest_rate_c, 0, .225, 0, 255), 35+(255*energy)/500);
     ellipse(x, y, 5, 5);
   }
 

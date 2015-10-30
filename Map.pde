@@ -37,9 +37,9 @@ class Grid {
   // This function takes in an actual x,y position and converts it to bin index
   int xy_to_index(int x_, int y_) {
     // This was causing IndexOutOfBoundsException errors
-    if (x_ < 0 || x_ > width || y_ < 0 || y_ > height) {
+    if (x_ < 0 || x_ >= width || y_ < 0 || y_ >= height) {
       // Using -1 as an error code.
-      println(x_, y_);
+      println("xy_to_index error " + x_, y_);
       return -1;
     } else { 
       return x_/binSize + w*(y_/binSize);
@@ -51,7 +51,7 @@ class Grid {
     // Storing this first to check for -1
     int i = xy_to_index(x_, y_);
     if (i==-1) {
-      print(debug);
+      println("get_bin error " + debug);
       // -1 is bad
       //println("Out of bounds call for get_bin()");
       // TODO THIS RETURN IS REALLY BAD. DONT MAKE MORE BINS!
