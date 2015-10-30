@@ -5,15 +5,15 @@ class Agent {
   int vx, vy;
   int wind_max;
   int wind;
-  // spaw rate of .08 is nice, maybe a tad slow
-  // spawn rate of .09 snowballs with no end in sight
-  float spawn_rate = .0225;
-  float mutation_rate = .3;
+  float spawn_rate = .035;
+  float mutation_rate = .25;
   float mutation_increment = .025;
   int rest_count_max;
   int rest_count;
   int since_last_meal;
   int age;
+  int harvest_limit;
+  int largest_harvest_rate_type;
  
 
   Agent(int x_, int y_, float ha, float hb, float hc, float hd, int wm, int rest_count_max_, int rest_count_) {
@@ -29,9 +29,12 @@ class Agent {
     wind = wind_max;
     energy = 500;
     rest_count_max = rest_count_max_;
+    //rest_count_max = int(random(5));
     rest_count = rest_count_;
     since_last_meal = 0;
     age = 0;
+    harvest_limit = 1;
+    largest_harvest_rate_type = find_largest_harvest_rate_type();
   }
 
   float harvest(int harv_type) {
@@ -46,19 +49,25 @@ class Agent {
       Float available_quantity = map.grid.get_bin(x,y, 0).energies.get(0);
       // The change in this agents energy is equal to their harvest rate multiplied by 
       // the ratio of the remaining energy.
-      delta_e = harvest_rate_a*(available_quantity*available_quantity/ra.max_per_bin);
+      //delta_e = harvest_rate_a*(available_quantity*available_quantity/ra.max_per_bin);
+      delta_e = harvest_rate_a*(available_quantity/ra.max_per_bin);
       // Updating this agents energy
+      if (delta_e > harvest_limit) { delta_e = harvest_limit; }
       energy = energy + delta_e;
       // Setting the grid to reflect the reduction in energy
       map.grid.get_bin(x,y, 1).energies.set(0, available_quantity-delta_e);
     } else if (harv_type == 1) {
       Float available_quantity = map.grid.get_bin(x,y, 2).energies.get(1);
-      delta_e = harvest_rate_b*(available_quantity*available_quantity/rb.max_per_bin);
+      //delta_e = harvest_rate_b*(available_quantity*available_quantity/rb.max_per_bin);
+      delta_e = harvest_rate_b*(available_quantity/rb.max_per_bin);
+      if (delta_e > harvest_limit) { delta_e = harvest_limit; }
       energy = energy + delta_e;
       map.grid.get_bin(x,y, 3).energies.set(1, available_quantity-delta_e);
     } else if (harv_type == 2) {
       Float available_quantity = map.grid.get_bin(x,y, 4).energies.get(2);
-      delta_e = harvest_rate_c*(available_quantity*available_quantity/rc.max_per_bin);
+      //delta_e = harvest_rate_c*(available_quantity*available_quantity/rc.max_per_bin);
+      delta_e = harvest_rate_c*(available_quantity/rc.max_per_bin);
+      if (delta_e > harvest_limit) { delta_e = harvest_limit; }
       energy = energy + delta_e;
       map.grid.get_bin(x,y, 5).energies.set(2, available_quantity-delta_e);
     } /*else if (harv_type == 3) {
@@ -111,7 +120,7 @@ class Agent {
     float y = harvest(0);
     y += harvest(1);
     y += harvest(2);
-    if (y<2) {
+    if (y<.15) {
       since_last_meal++;
     } else {
       since_last_meal = 0;
@@ -121,7 +130,8 @@ class Agent {
 
   void display() {
     noStroke();
-    fill(map(harvest_rate_a, 0, .225, 0, 255), map(harvest_rate_b, 0, .225, 0, 255), map(harvest_rate_c, 0, .225, 0, 255), 35+(255*energy)/500);
+    float sum_harvest_rate = harvest_rate_a + harvest_rate_b + harvest_rate_c + harvest_rate_d;
+    fill(map(harvest_rate_a, 0, sum_harvest_rate, 0, 255), map(harvest_rate_b, 0, sum_harvest_rate, 0, 255), map(harvest_rate_c, 0, sum_harvest_rate, 0, 255), 150+(255*energy)/500);
     ellipse(x, y, 5, 5);
   }
 
@@ -215,7 +225,7 @@ class Agent {
       }
       
       if (coin_flip()) {
-        pass_rcm = rest_count_max + 1;
+        if (rest_count_max < 10) { pass_rcm = rest_count_max + 1; }
       } else if (rest_count_max > 1) {
         pass_rcm = rest_count_max - 1;
       }
@@ -230,4 +240,24 @@ class Agent {
     Agent a = new Agent(x+rand_three()-2, y+rand_three()-2, pass_ha, pass_hb, pass_hc, pass_hd, pass_mw, pass_rcm, pass_rcm);
     return a;
   }
+  
+  int find_largest_harvest_rate_type() {
+      // Going to track the resource that this agent is most suited to harvest
+      float largest_harvest_rate = harvest_rate_a;
+      int largest_harvest_rate_type = 0;
+      if (harvest_rate_b > largest_harvest_rate) {
+        largest_harvest_rate = harvest_rate_b;
+        largest_harvest_rate_type = 1;
+      }
+      if (harvest_rate_c > largest_harvest_rate) {
+        largest_harvest_rate = harvest_rate_c;
+        largest_harvest_rate_type = 2;
+      }
+      if (harvest_rate_d > largest_harvest_rate) {
+        largest_harvest_rate = harvest_rate_d;
+        largest_harvest_rate_type = 3;
+      }
+      return largest_harvest_rate_type;
+  }
+  
 }
