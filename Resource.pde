@@ -52,9 +52,11 @@ class Resource {
       case 0:
         if (x+vx+radius > width || x+vx-radius < 0) {
           vx=-vx;
+          vy=-vy;
         } 
         if (y+vy+radius > height || y+vy-radius < 0) {
           vy=-vy;
+          vx=-vx;
         }
         
         x = x + vx;
@@ -69,7 +71,19 @@ class Resource {
         if (y+vy+radius > height || y+vy-radius < 0) {
           vy=-vy;
         }
-        
+        /*
+        // This makes the dude a random walker
+        if (x < width - 5 && x > 5 && y > 5 && y < height -5 && int(millis()%75)==0) {
+          float r = random(1);
+          if (r > .5) {
+            vx = - vx;
+          }
+          r = random(1);
+          if (r > .5) {
+            vy = -vy;
+          }
+        }
+        */  
         x = x + vx;
         y = y + vy;
         

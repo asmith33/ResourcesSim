@@ -7,12 +7,13 @@ class Agent {
   int wind;
   // spaw rate of .08 is nice, maybe a tad slow
   // spawn rate of .09 snowballs with no end in sight
-  float spawn_rate = .0825;
+  float spawn_rate = .0225;
   float mutation_rate = .3;
   float mutation_increment = .025;
   int rest_count_max;
   int rest_count;
   int since_last_meal;
+  int age;
  
 
   Agent(int x_, int y_, float ha, float hb, float hc, float hd, int wm, int rest_count_max_, int rest_count_) {
@@ -30,6 +31,7 @@ class Agent {
     rest_count_max = rest_count_max_;
     rest_count = rest_count_;
     since_last_meal = 0;
+    age = 0;
   }
 
   float harvest(int harv_type) {
@@ -69,6 +71,7 @@ class Agent {
   }
 
   void move() {
+    age++;
     rest_count++;
     if (rest_count >= rest_count_max) {
       rest_count = 0;
@@ -86,10 +89,13 @@ class Agent {
   
       x = x + vx;
       y = y + vy;
-      energy -= since_last_meal-1;
+      // trying to build in a penalty for going hungry. Too many are breeding in areas where there isn't even any food.
+      energy = energy - since_last_meal - 1;
       
       // chance to reproduce within life window
-      if (energy > 150 && energy < 400) {
+      // taking out the upper bound energy < 400
+      // going to try and stop early reproduction with a variable called "age"
+      if (energy > 200 && age > 150) {
         float rnd = random(1);
         if (rnd < spawn_rate) {
           agents.add(mutate_reproduce());
@@ -107,6 +113,8 @@ class Agent {
     y += harvest(2);
     if (y<2) {
       since_last_meal++;
+    } else {
+      since_last_meal = 0;
     }
     
   }
