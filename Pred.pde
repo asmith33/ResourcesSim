@@ -140,7 +140,7 @@ class Pred {
       hunt();
       
       // trying to build in a penalty for going hungry. Too many are breeding in areas where there isn't even any food.
-      energy = energy - since_last_meal - 40;
+      energy = energy - since_last_meal - 25;
 
     //} else {
       return;

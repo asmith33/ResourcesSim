@@ -5,7 +5,7 @@ class Agent {
   int vx, vy;
   int wind_max;
   int wind;
-  float spawn_rate = .035;
+  float spawn_rate = .04;
   float mutation_rate = .25;
   float mutation_increment = .025;
   int rest_count_max;
