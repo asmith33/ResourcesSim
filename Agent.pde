@@ -5,8 +5,8 @@ class Agent {
   int vx, vy;
   int wind_max;
   int wind;
-  float spawn_rate = .04;
-  float mutation_rate = .25;
+  float spawn_rate;
+  float mutation_rate;
   float mutation_increment = .025;
   int rest_count_max;
   int rest_count;
@@ -16,7 +16,7 @@ class Agent {
   int largest_harvest_rate_type;
  
 
-  Agent(int x_, int y_, float ha, float hb, float hc, float hd, int wm, int rest_count_max_, int rest_count_) {
+  Agent(int x_, int y_, float ha, float hb, float hc, float hd, int wm, int rest_count_max_, int rest_count_, float spawn_rate_, float mutation_rate_) {
     x = x_;
     y = y_;
     vx = 0;
@@ -35,6 +35,8 @@ class Agent {
     age = 0;
     harvest_limit = 1;
     largest_harvest_rate_type = find_largest_harvest_rate_type();
+    spawn_rate = spawn_rate_;
+    mutation_rate = mutation_rate_;
   }
 
   float harvest(int harv_type) {
@@ -237,7 +239,7 @@ class Agent {
       pass_hc = harvest_rate_c;
       pass_hd = harvest_rate_d;
     }
-    Agent a = new Agent(x+rand_three()-2, y+rand_three()-2, pass_ha, pass_hb, pass_hc, pass_hd, pass_mw, pass_rcm, pass_rcm);
+    Agent a = new Agent(x+rand_three()-2, y+rand_three()-2, pass_ha, pass_hb, pass_hc, pass_hd, pass_mw, pass_rcm, pass_rcm, spawn_rate_slider_val, mutation_rate_slider_val);
     return a;
   }
   
