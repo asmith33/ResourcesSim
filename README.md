@@ -10,6 +10,11 @@ Agents specialty is mapped to RGB values
 Predators collect energy from agents
 
 w : toggle window
+a : toggle agents
+r : toggle regions
+g : toggle grid
+p : toggle predators
+'space' : spawn predators
 
 asmith33 github
 
