@@ -60,6 +60,8 @@ class Grid {
       return bins.get(xy_to_index(x_, y_));
     }
   }
+  
+
 
   void display() {
     /* This worked well, just wanted to try making boxes that represent the values by color
