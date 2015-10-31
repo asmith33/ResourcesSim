@@ -1,4 +1,4 @@
-// asmith33@github.com
+// github : asmith33
 
 import java.util.*;
 import com.google.common.collect.*;
