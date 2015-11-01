@@ -33,7 +33,7 @@ ArrayList<Agent> agents;
 // predators collect energy from agents
 ArrayList<Pred> preds;
 // keyboard input signals
-boolean hide_agents, hide_grid=true, hide_resources=true, hide_window=true, hide_preds;
+boolean hide_agents, hide_grid=true, hide_resources=true, hide_window=true, hide_preds, kill_all_predators=false;
 
 // map -> grid -> bins
 // key : bin index
@@ -50,7 +50,7 @@ ArrayList<Integer> no_energy;
 
 // Global variable that are controlled by sliders/buttons
 float spawn_rate_slider_val = .01;
-float mutation_rate_slider_val = .1;
+float mutation_rate_slider_val = .01;
 int predator_move_cost_val = 5;
 int predator_no_food_cost_val = 3;
 float predator_spawn_rate_val = .1;
@@ -83,11 +83,11 @@ void setup() {
   // http://wiki.bk.tudelft.nl/toi-pedia/Processing_Buttons_and_Sliders
   MyController = new ControlP5(this);
   //                                            name   ,                 lower, upper, start, tl_x, tl_y, width, height
-  spawn_rate_slider_obj = MyController.addSlider("spawn_rate_slider_val", 0, .1, spawn_rate_slider_val, 20, 160, 100, 10); 
-  mutation_rate_slider_obj = MyController.addSlider("mutation_rate_slider_val", 0, 1, mutation_rate_slider_val, 20, 180, 100, 10); 
-  predator_move_cost_obj = MyController.addSlider("predator_move_cost_val", 0, 50, predator_move_cost_val, 20, 200, 100, 10); 
-  predator_no_food_cost_obj = MyController.addSlider("predator_no_food_cost_val", -1, 50, predator_no_food_cost_val, 20, 220, 100, 10);
-  predator_spawn_rate_obj = MyController.addSlider("predator_spawn_rate", 0, .2, predator_spawn_rate_val, 20, 240, 100, 10); 
+  spawn_rate_slider_obj = MyController.addSlider("spawn_rate_slider_val", 0, .1, spawn_rate_slider_val, 20, 175, 100, 10); 
+  mutation_rate_slider_obj = MyController.addSlider("mutation_rate_slider_val", 0, 1, mutation_rate_slider_val, 20, 195, 100, 10); 
+  predator_move_cost_obj = MyController.addSlider("predator_move_cost_val", 0, 50, predator_move_cost_val, 20, 215, 100, 10); 
+  predator_no_food_cost_obj = MyController.addSlider("predator_no_food_cost_val", -1, 50, predator_no_food_cost_val, 20, 235, 100, 10);
+  predator_spawn_rate_obj = MyController.addSlider("predator_spawn_rate", 0, .2, predator_spawn_rate_val, 20, 255, 100, 10); 
 }
 
 void draw() {
@@ -150,14 +150,21 @@ void draw() {
     
     p.move();
     
-    if (p.energy<0) {
-      
+    // If the predators is out of energy, remove
+    if (p.energy<0) { 
+      preds.remove(i);
+    } else if (kill_all_predators) {
+      // If the user has selected to kill all predators, remove
       preds.remove(i);
     }
+    
     
     if (!hide_preds) { p.display(); }
   }
   
+  // Disable the kill_all_predators.. other wise this gets confusing. 
+  // You could try and add predators, not knowing this was true
+  kill_all_predators = false;
   
   // Cleaning up the fallen
   // Start by sorting the no_energy array
@@ -218,5 +225,9 @@ void keyPressed() {
   if (key == ' ') {
     int rand_index = int(random(agents.size()));
     Agent a = agents.get(rand_index);
-    preds.add(new Pred(a.x, a.y, a.harvest_rate_a, a.harvest_rate_b, a.harvest_rate_c, a.harvest_rate_d, a.wind_max, a.rest_count_max, a.rest_count, predator_move_cost_val, predator_spawn_rate_val)); }
+    preds.add(new Pred(a.x, a.y, a.harvest_rate_a, a.harvest_rate_b, a.harvest_rate_c, a.harvest_rate_d, a.wind_max, a.rest_count_max, a.rest_count, predator_move_cost_val, predator_spawn_rate_val));
+  }
+  if (key == 'x') {
+    kill_all_predators = !kill_all_predators;
+  }
 }

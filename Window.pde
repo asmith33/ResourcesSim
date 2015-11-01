@@ -10,7 +10,7 @@ class Window {
    
   Window () {
     w = 300;
-    h = 255;
+    h = 265;
     tl_x = 10;
     tl_y = 10;
   }
@@ -22,19 +22,21 @@ class Window {
       case 0:
         draw_window();
         fill(205);
-        String line0, line1, line2, line3, line4, line5;
+        String line0, line1, line2, line3, line4, line5, line6;
         line0 = "w : toggle window";
         line1 = "a : toggle agents";
         line2 = "r : toggle regions";
         line3 = "g : toggle grid";
         line4 = "p : toggle predators";
-        line5 = "'space' : spawn predators";
+        line5 = "x : remove predators";
+        line6 = "'space' : spawn predators";
         text(line0, tl_x+5, tl_y + 20);
         text(line1, tl_x+5, tl_y + 42);
         text(line2, tl_x+5, tl_y + 64); 
         text(line3, tl_x+5, tl_y + 86); 
         text(line4, tl_x+5, tl_y + 108); 
         text(line5, tl_x+5, tl_y + 130); 
+        text(line6, tl_x+5, tl_y + 152); 
         break;
       case 1:
         // this used to display bin values. Not using it currently.
@@ -71,7 +73,7 @@ class Window {
      
   
   void draw_window() {
-    stroke(39,82,135);
+    stroke(39,82,157);
     strokeWeight(2);
     fill(55);
     rect(tl_x, tl_y, w, h);

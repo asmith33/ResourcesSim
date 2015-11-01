@@ -1,5 +1,6 @@
 # ResourcesSim
-Population Simulation
+
+An energy system simulation
 
 Resources generate a specific type of energy and store that energy into a grid
 
@@ -14,6 +15,7 @@ a : toggle agents
 r : toggle regions
 g : toggle grid
 p : toggle predators
+x : remove predators
 'space' : spawn predators
 
 asmith33 github
